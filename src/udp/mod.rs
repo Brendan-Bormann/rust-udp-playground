@@ -78,7 +78,7 @@ impl UDPConnection {
 
         match self.socket.send_to(buffer, target_addr) {
             Ok(size) => Ok(size),
-            Err(e) => Err(e.to_string())
+            Err(error) => Err(error.to_string())
         }
     }
 

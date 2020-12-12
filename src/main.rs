@@ -1,11 +1,12 @@
-use std::{env::args, println};
+use std::env::args;
+use std::io::{self, BufRead};
 use std::thread;
 
 mod packets;
 mod udp;
 
-const SERVER_ADDR: &str = "127.0.0.1:8080";
-const LOCAL_ADDR: &str = "127.0.0.2:8080";
+const SERVER_ADDR: &str = "159.65.238.222:8080";
+const LOCAL_ADDR: &str = "0.0.0.0:8080";
 
 fn main() {
     let args: Vec<String> = args().collect();
@@ -35,8 +36,21 @@ fn start_client() {
         client_clone.listen(server_message_handler);
     });
 
-    match client.send_message(SERVER_ADDR, "Hello".to_string()) {
-        Ok(_) => println!("Sent message."),
-        Err(_) => println!("Failed to send message.")
-    };
+    loop {
+        
+        let message = read_stdin();
+
+        match client.send_message(SERVER_ADDR, message) {
+            Ok(_) => println!("Sent message."),
+            Err(error) => println!("Error: {}", error)
+        };
+
+    }
+}
+
+fn read_stdin() -> String {
+    let stdin = io::stdin();
+    let line = stdin.lock().lines().next().unwrap().unwrap();
+
+    line
 }
