@@ -4,7 +4,7 @@ use std::env::args;
 mod packets;
 
 const SERVER_ADDR: &str = "127.0.0.1:8080";
-const LOCAL_ADDR: &str = "127.0.0.2:8080";
+const LOCAL_ADDR: &str = "127.0.0.1:8080";
 
 fn main() {
     let args: Vec<String> = args().collect();
@@ -17,7 +17,7 @@ fn main() {
 }
 
 fn start_server() {
-    println!("Starting UDP Server.");
+    println!("Starting UDP Server. Target address: [{}]", SERVER_ADDR);
 
     let socket = UdpSocket::bind(SERVER_ADDR).expect("Failed to bind server to port.");
     socket.set_nonblocking(true).expect("Failed to set server to non-blocking.");
