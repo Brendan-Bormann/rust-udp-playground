@@ -13,7 +13,7 @@ impl UDPConnection {
                 println!("- Server started at: [{}]", host_addr);
                 socket
             },
-            Err(msg) => panic!("- Failed to bind server to port.")
+            Err(_) => panic!("- Failed to bind server to port.")
         };
         socket.set_nonblocking(true).expect("- Failed to set server to non-blocking.");
 
@@ -30,7 +30,7 @@ impl UDPConnection {
                 println!("- Client started at: [{}]", host_addr);
                 socket
             },
-            Err(msg) => panic!("- Failed to bind client to port.")
+            Err(_) => panic!("- Failed to bind client to port.")
         };
         socket.set_nonblocking(true).expect("- Failed to set client to non-blocking.");
 
@@ -39,7 +39,7 @@ impl UDPConnection {
                 println!("- Connected to server at [{}]", server_sddr);
                 socket
             },
-            Err(msg) => panic!("- Failed to connect to server.")
+            Err(_) => panic!("- Failed to connect to server.")
         };
 
         println!("");
@@ -54,7 +54,7 @@ impl UDPConnection {
     
             match &self.socket.recv_from(&mut buf) {
                 
-                Ok((size, addr)) => {
+                Ok((_size, addr)) => {
                     let data = buf.to_vec();
     
                     match String::from_utf8(data) {
