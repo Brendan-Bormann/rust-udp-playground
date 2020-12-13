@@ -2,11 +2,11 @@ use std::env::args;
 use std::io::{self, BufRead};
 use std::thread;
 
-mod packets;
 mod udp;
+use udp::packet;
 
-const SERVER_ADDR: &str = "159.65.238.222:8080";
-const LOCAL_ADDR: &str = "0.0.0.0:8080";
+const SERVER_ADDR: &str = "127.0.0.1:8080";
+const LOCAL_ADDR: &str = "127.0.0.2:8080";
 
 fn main() {
     let args: Vec<String> = args().collect();
@@ -23,8 +23,8 @@ fn start_server() {
     server.listen(server_message_handler);
 }
 
-fn server_message_handler(message: String, addr: String) {
-    println!("Message: [{}]\n- {}", addr, message);
+fn server_message_handler(packet: packet::Packet) {
+    println!("Message: [{}]\n- {}", packet.sender, packet.packet_data);
 }
 
 fn start_client() {

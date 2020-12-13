@@ -1,6 +1,10 @@
 use std::net::UdpSocket;
 
+pub mod packet;
+use packet::*;
+
 pub struct UDPConnection {
+    host_address: String,
     socket: UdpSocket
 }
 
@@ -19,7 +23,10 @@ impl UDPConnection {
 
         println!("");
 
-        UDPConnection { socket }
+        UDPConnection {
+            host_address: host_addr.to_string(),
+            socket
+        }
     }
 
     pub fn new_client(host_addr: &str, server_sddr: &str) -> UDPConnection {
@@ -44,24 +51,26 @@ impl UDPConnection {
 
         println!("");
 
-        UDPConnection { socket }
+        UDPConnection {
+            host_address: host_addr.to_string(),
+            socket
+        }
     }
 
-    pub fn listen(&self, message_handler: fn(message: String, origin_addr: String)) {
+    pub fn listen(&self, message_handler: fn(packet: Packet)) {
 
         loop {
             let mut buf = [0; 512];
     
             match &self.socket.recv_from(&mut buf) {
                 
-                Ok((_size, addr)) => {
+                Ok((size, _addr)) => {
                     let data = buf.to_vec();
-    
-                    match String::from_utf8(data) {
-                        Ok(m) => message_handler(m, addr.to_string()),
-                        Err(e) => println!("Error: {}", e)
-                    }
+                    let packet = Packet::deserialize_packet(&data);
 
+                    message_handler(packet);
+
+                    println!("Packet size: {}", size);
                 },
     
                 Err(error) => match error.kind() {
@@ -74,9 +83,16 @@ impl UDPConnection {
     }
 
     pub fn send_message(&self, target_addr: &str, message: String) -> Result<usize, String> {
-        let buffer = message.as_bytes();
+        
+        let new_packet = Packet {
+            sender: self.host_address.to_string(),
+            packet_type: "message".to_string(),
+            packet_data: message
+        };
 
-        match self.socket.send_to(buffer, target_addr) {
+        let buf = Packet::serialize_packet(&new_packet);
+
+        match self.socket.send_to(&buf, target_addr) {
             Ok(size) => Ok(size),
             Err(error) => Err(error.to_string())
         }
@@ -90,7 +106,9 @@ impl UDPConnection {
         };
 
         UDPConnection {
+            host_address: self.host_address.to_string(),
             socket: socket_clone
         }
     }
 }
+
